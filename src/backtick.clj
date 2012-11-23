@@ -9,13 +9,11 @@
   (let [ns (namespace sym)
         n (name sym)]
     (if (and (not ns) (= (last n) \#))
-      (if-not *gensyms*
-        (throw (Exception. "Gensym literal not in syntax-quote."))
-        (if-let [gs (@*gensyms* sym)]
-          gs
-          (let [gs (gensym (str (subs n 0 (dec (count n))) "__auto__"))]
-            (swap! *gensyms* assoc sym gs)
-            gs)))
+      (if-let [gs (@*gensyms* sym)]
+        gs
+        (let [gs (gensym (str (subs n 0 (dec (count n))) "__auto__"))]
+          (swap! *gensyms* assoc sym gs)
+          gs))
       (*resolve* sym))))
 
 (defn- unquote? [form]
