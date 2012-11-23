@@ -3,15 +3,30 @@
 
 (def ^:dynamic *resolve*)
 
+(def ^:dynamic ^:private *gensyms*)
+
+(defn- resolve [sym]
+  (let [ns (namespace sym)
+        n (name sym)]
+    (if (and (not ns) (= (last n) \#))
+      (if-not *gensyms*
+        (throw (Exception. "Gensym literal not in syntax-quote."))
+        (if-let [gs (@*gensyms* sym)]
+          gs
+          (let [gs (gensym (str (subs n (dec (count n))) "__auto__"))]
+            (swap! *gensyms* assoc sym gs)
+            gs)))
+      (*resolve* sym))))
+
 (defn- unquote? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote)))
 
 (defn- unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
-(defn syntax-quote-fn [form]
+(defn quote-fn [form]
   (cond
-    (symbol? form) `'~(*resolve* form)
+    (symbol? form) `'~(resolve form)
     (unquote? form) (second form)
     (unquote-splicing? form) (throw (Exception. "splice not in list"))
     (coll? form)
@@ -19,7 +34,7 @@
             parts (for [x (partition-by unquote-splicing? xs)]
                     (if (unquote-splicing? (first x))
                       (second (first x))
-                      (mapv syntax-quote-fn x)))
+                      (mapv quote-fn x)))
             cat (doall `(concat ~@parts))]
         (cond
           (vector? form) `(vec ~cat)
@@ -32,7 +47,8 @@
 (defmacro defquote [name resolver]
   `(let [resolver# ~resolver]
      (defmacro ~name [form#]
-       (binding [*resolve* resolver#]
-         (syntax-quote-fn form#)))))
+       (binding [*resolve* resolver#
+                 *gensyms* (atom {})]
+         (quote-fn form#)))))
 
 (defquote template identity)
