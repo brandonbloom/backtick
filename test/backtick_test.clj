@@ -1,6 +1,6 @@
 (ns backtick-test
   (:use clojure.test)
-  (:require [backtick :refer (template defquote)]))
+  (:require [backtick :refer (template defquote quote-fn)]))
 
 (deftest template-test
 
@@ -17,9 +17,14 @@
       (is (not= a b))
       (is (= d 'bar)))))
 
-(defquote wacky-quote (fn [sym] (symbol (str sym "!"))))
+(defn add-bang [sym]
+  (symbol (str sym "!")))
+
+(defquote wacky-quote add-bang)
 
 (deftest defquote-test
   (testing "Custom resolver"
+    (is (= ''foo! (quote-fn add-bang 'foo)))
+    (is (= ''foo! (wacky-quote-fn 'foo)))
     (is (= '(foo! :a [5 bar!])
            (wacky-quote (foo :a [5 bar]))))))

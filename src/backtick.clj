@@ -22,7 +22,7 @@
 (defn unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
-(defn quote-fn [form]
+(defn- quote-fn* [form]
   (cond
     (symbol? form) `'~(resolve form)
     (unquote? form) (second form)
@@ -32,7 +32,7 @@
             parts (for [x (partition-by unquote-splicing? xs)]
                     (if (unquote-splicing? (first x))
                       (second (first x))
-                      (mapv quote-fn x)))
+                      (mapv quote-fn* x)))
             cat (doall `(concat ~@parts))]
         (cond
           (vector? form) `(vec ~cat)
@@ -42,11 +42,16 @@
           :else (throw (Exception. "Unknown collection type"))))
     :else `'~form))
 
+(defn quote-fn [resolver form]
+  (binding [*resolve* resolver
+            *gensyms* (atom {})]
+    (quote-fn* form)))
+
 (defmacro defquote [name resolver]
   `(let [resolver# ~resolver]
+     (defn ~(symbol (str name "-fn")) [form#]
+       (quote-fn resolver# form#))
      (defmacro ~name [form#]
-       (binding [*resolve* resolver#
-                 *gensyms* (atom {})]
-         (quote-fn form#)))))
+       (quote-fn resolver# form#))))
 
 (defquote template identity)
