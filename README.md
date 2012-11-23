@@ -3,26 +3,46 @@
 A Clojure library providing the syntax-quote reader macro as a normal macro.
 
 
+## Motivation
+
+Clojure's backtick `` ` `` reader macro, called syntax-quote, complects the
+templating of Clojure forms with Clojure's namespaced symbol resolution.
+
+Backtick allows you to use the unquote `` ~ `` and unquote-splicing `` ~@ ``
+metacharacters for templating forms with or without a customer symbol resolver.
+
+
 ## Usage
 
 ```clojure
-(require '[backtick :refer (syntax-quote)])
+(use 'backtick)
 
 (let [x 5 v [:a :b]]
-  (syntax-quote {:x ~x, 's #{~@v "c"}}))
+  (template {:x ~x, s #{~@v "c"}}))
+
+;; Returns:
+{s #{"c" :a :b}, :x 5}
 ```
 
-Returns:
+Note that symbols are not resolved. However, gensyms are supported:
 
 ```clojure
-{(quote s) #{"c" :a :b}, :x 5}
+(template [x# x# y#])
+
+;; Returns something like:
+[x__auto__990 x__auto__990 y__auto__991]
 ```
 
-Note that symbols are not resolved.
-You can provide your own resolver by redefining `backtick/resolve`.
+You can create a templating macro with your own resolver with defquote:
 
-A future version may provide a default resolve implementation,
-but I'm this module may be obsoleted as ClojureScript becomes self-hosted.
+```clojure
+(defquote shout-quote (comp symbol clojure.string/upper-case))
+
+(shout-quote {:foo bar})
+
+;; Returns:
+{:foo BAR}
+```
 
 
 ## License
