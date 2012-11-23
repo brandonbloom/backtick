@@ -16,10 +16,10 @@
           gs))
       (*resolve* sym))))
 
-(defn- unquote? [form]
+(defn unquote? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote)))
 
-(defn- unquote-splicing? [form]
+(defn unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
 (defn quote-fn [form]
