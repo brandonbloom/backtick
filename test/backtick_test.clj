@@ -20,6 +20,6 @@
 (defquote wacky-quote (fn [sym] (symbol (str sym "!"))))
 
 (deftest defquote-test
-  (testing "Customer resolver"
+  (testing "Custom resolver"
     (is (= '(foo! :a [5 bar!])
            (wacky-quote (foo :a [5 bar]))))))

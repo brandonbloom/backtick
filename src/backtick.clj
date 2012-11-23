@@ -13,7 +13,7 @@
         (throw (Exception. "Gensym literal not in syntax-quote."))
         (if-let [gs (@*gensyms* sym)]
           gs
-          (let [gs (gensym (str (subs n (dec (count n))) "__auto__"))]
+          (let [gs (gensym (str (subs n 0 (dec (count n))) "__auto__"))]
             (swap! *gensyms* assoc sym gs)
             gs)))
       (*resolve* sym))))
