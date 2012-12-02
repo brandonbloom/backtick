@@ -22,6 +22,9 @@
 (defn unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
+(defn record? [x]
+  (instance? clojure.lang.IRecord x))
+
 (defn- quote-fn* [form]
   (cond
     (symbol? form) `'~(resolve form)
@@ -36,6 +39,7 @@
             cat (doall `(concat ~@parts))]
         (cond
           (vector? form) `(vec ~cat)
+          (record? form) `'~form
           (map? form) `(apply hash-map ~cat)
           (set? form) `(set ~cat)
           (seq? form) `(list* ~cat)

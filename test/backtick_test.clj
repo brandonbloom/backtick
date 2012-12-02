@@ -28,3 +28,9 @@
     (is (= ''foo! (wacky-quote-fn 'foo)))
     (is (= '(foo! :a [5 bar!])
            (wacky-quote (foo :a [5 bar]))))))
+
+(defrecord R [x])
+
+(deftest record-test
+  (testing "Record types are preserved"
+    (is (= (R. 1) (template #backtick_test.R{:x 1})))))
