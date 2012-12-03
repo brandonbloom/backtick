@@ -9,7 +9,7 @@ Clojure's backtick `` ` `` reader macro, called syntax-quote, complects the
 templating of Clojure forms with Clojure's namespaced symbol resolution.
 
 Backtick allows you to use the unquote `` ~ `` and unquote-splicing `` ~@ ``
-metacharacters for templating forms with or without a customer symbol resolver.
+metacharacters for templating forms with or without a custom symbol resolver.
 
 Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojures-backtick.html>.
 
