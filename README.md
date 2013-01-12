@@ -1,6 +1,6 @@
 # backtick
 
-A Clojure library providing the syntax-quote reader macro as a normal macro.
+A Clojure library providing the syntax-quote (aka quasiquote) reader macro as a normal macro.
 
 
 ## Motivation
