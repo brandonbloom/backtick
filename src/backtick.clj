@@ -30,6 +30,7 @@
     (symbol? form) `'~(resolve form)
     (unquote? form) (second form)
     (unquote-splicing? form) (throw (Exception. "splice not in list"))
+    (record? form) `'~form
     (coll? form)
       (let [xs (if (map? form) (apply concat form) form)
             parts (for [x (partition-by unquote-splicing? xs)]
@@ -39,7 +40,6 @@
             cat (doall `(concat ~@parts))]
         (cond
           (vector? form) `(vec ~cat)
-          (record? form) `'~form
           (map? form) `(apply hash-map ~cat)
           (set? form) `(set ~cat)
           (seq? form) `(list* ~cat)
