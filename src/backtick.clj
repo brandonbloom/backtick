@@ -94,7 +94,7 @@
         (if (re-find #"^\." nm)
           sym ; method name
           (or (ns-resolve-sym sym)
-              (symbol (name (.name *ns*)) nm))))
+              (symbol (namespace-name *ns*) nm))))
       (or (ns-resolve-sym sym) sym))))
 
 (defquote syntax-quote resolve-symbol)
