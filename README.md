@@ -13,6 +13,7 @@ metacharacters for templating forms with or without a custom symbol resolver.
 
 Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojures-backtick.html>.
 
+
 ## Usage
 
 ```clojure
@@ -51,6 +52,14 @@ You can create a templating macro with your own resolver with defquote:
 
 ;; Returns:
 {:foo BAR}
+```
+
+There are also corresponding functions for every macro produced by `defquote`:
+
+```clojure
+(syntax-quote-fn 'foo) ;; => (quote user/foo)
+(template-fn 'foo)     ;; => (quote foo)
+(shout-quote-fn 'foo)  ;; => (quote FOO)
 ```
 
 
