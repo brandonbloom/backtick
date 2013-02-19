@@ -1,6 +1,6 @@
 (ns backtick-test
   (:use clojure.test)
-  (:require [backtick :refer (template defquote quote-fn)]))
+  (:require [backtick :refer (template defquote quote-fn syntax-quote)]))
 
 (deftest template-test
 
@@ -34,3 +34,26 @@
 (deftest record-test
   (testing "Record types are preserved"
     (is (= (R. 1) (template #backtick_test.R{:x 1})))))
+
+(deftest syntax-quote-test
+  (testing "Constructors, classes, methods, and vars"
+    (is (= (syntax-quote
+             [Class
+              Class.
+              java.lang.Class
+              java.lang.Class.
+              unqualified
+              fully/qualified
+              method.
+              inc
+              backtick.test/inc])
+           `[Class
+             Class.
+             java.lang.Class
+             java.lang.Class.
+             unqualified
+             fully/qualified
+             method.
+             inc
+             backtick.test/inc]))))
+

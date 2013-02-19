@@ -18,14 +18,22 @@ Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojur
 ```clojure
 (use 'backtick)
 
+;; Full syntax-quote replacement
 (let [x 5 v [:a :b]]
-  (template {:x ~x, s #{~@v "c"}}))
+  (syntax-quote {:x ~x, s #{~@v "c" inc}}))
 
 ;; Returns:
-{s #{"c" :a :b}, :x 5}
+{:x 5, user/s #{"c" clojure.core/inc :a :b}}
+
+;; Templating only, no symbol resolution
+(let [x 5 v [:a :b]]
+  (template {:x ~x, s #{~@v "c" inc}}))
+
+;; Returns:
+{s #{"c" :a :b inc}, :x 5}
 ```
 
-Note that symbols are not resolved. However, gensyms are supported:
+Note that while `template` does not resolve symbols, it does support gensyms:
 
 ```clojure
 (template [x# x# y#])

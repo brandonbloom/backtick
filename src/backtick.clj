@@ -59,3 +59,42 @@
        (quote-fn resolver# form#))))
 
 (defquote template identity)
+
+(defn- class-symbol [^java.lang.Class cls]
+  (symbol (.getName cls)))
+
+(defn- namespace-name [^clojure.lang.Namespace ns]
+  (name (.getName ns)))
+
+(defn- var-namespace [^clojure.lang.Var v]
+  (name (.name (.ns v))))
+
+(defn- var-name [^clojure.lang.Var v]
+  (name (.sym v)))
+
+(defn- var-symbol [^clojure.lang.Var v]
+  (symbol (var-namespace v) (var-name v)))
+
+(defn- ns-resolve-sym [sym]
+  (let [x (ns-resolve *ns* sym)]
+    (cond
+      (instance? java.lang.Class x) (class-symbol x)
+      (instance? clojure.lang.Var x) (var-symbol x)
+      :else nil)))
+
+(defn resolve-symbol [sym]
+  (let [ns (namespace sym)
+        nm (name sym)]
+    (if (nil? ns)
+      (if-let [[_ ctor-name] (re-find #"(.*)\.$" nm)]
+        (symbol nil (-> (symbol nil ctor-name)
+                      resolve-symbol
+                      name
+                      (str ".")))
+        (if (re-find #"^\." nm)
+          sym ; method name
+          (or (ns-resolve-sym sym)
+              (symbol (name (.name *ns*)) nm))))
+      (or (ns-resolve-sym sym) sym))))
+
+(defquote syntax-quote resolve-symbol)
