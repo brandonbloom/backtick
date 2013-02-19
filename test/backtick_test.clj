@@ -44,7 +44,7 @@
               java.lang.Class.
               unqualified
               fully/qualified
-              method.
+              .method
               inc
               backtick.test/inc])
            `[Class
@@ -53,7 +53,7 @@
              java.lang.Class.
              unqualified
              fully/qualified
-             method.
+             .method
              inc
              backtick.test/inc]))))
 
