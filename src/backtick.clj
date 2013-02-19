@@ -91,8 +91,9 @@
                       resolve-symbol
                       name
                       (str ".")))
-        (if (re-find #"^\." nm)
-          sym ; method name
+        (if (or (special-symbol? sym)
+                (re-find #"^\." nm)) ; method name
+          sym
           (or (ns-resolve-sym sym)
               (symbol (namespace-name *ns*) nm))))
       (or (ns-resolve-sym sym) sym))))

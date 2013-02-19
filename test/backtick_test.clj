@@ -36,7 +36,7 @@
     (is (= (R. 1) (template #backtick_test.R{:x 1})))))
 
 (deftest syntax-quote-test
-  (testing "Constructors, classes, methods, and vars"
+  (testing "Constructors, classes, methods, vars, and specials"
     (is (= (syntax-quote
              [Class
               Class.
@@ -46,7 +46,8 @@
               fully/qualified
               .method
               inc
-              backtick.test/inc])
+              backtick.test/inc
+              quote])
            `[Class
              Class.
              java.lang.Class
@@ -55,5 +56,6 @@
              fully/qualified
              .method
              inc
-             backtick.test/inc]))))
+             backtick.test/inc
+             quote]))))
 
