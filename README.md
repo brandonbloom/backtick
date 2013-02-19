@@ -43,7 +43,7 @@ Note that while `template` does not resolve symbols, it does support gensyms:
 [x__auto__990 x__auto__990 y__auto__991]
 ```
 
-You can create a templating macro with your own resolver with defquote:
+You can create a templating macro with a custom resolver by using `defquote`:
 
 ```clojure
 (defquote shout-quote (comp symbol clojure.string/upper-case))
@@ -54,7 +54,7 @@ You can create a templating macro with your own resolver with defquote:
 {:foo BAR}
 ```
 
-There are also corresponding functions for every macro produced by `defquote`:
+Corresponding functions are generated for every quoting macro:
 
 ```clojure
 (syntax-quote-fn 'foo) ;; => (quote user/foo)
