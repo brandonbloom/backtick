@@ -42,7 +42,7 @@
           (vector? form) `(vec ~cat)
           (map? form) `(apply hash-map ~cat)
           (set? form) `(set ~cat)
-          (seq? form) `(list* ~cat)
+          (seq? form) `(apply list ~cat)
           :else (throw (Exception. "Unknown collection type"))))
     :else `'~form))
 
