@@ -22,9 +22,6 @@
 (defn unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
-(defn record? [x]
-  (instance? clojure.lang.IRecord x))
-
 (defn- quote-fn* [form]
   (cond
     (symbol? form) `'~(resolve form)
