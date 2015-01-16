@@ -14,6 +14,11 @@ metacharacters for templating forms with or without a custom symbol resolver.
 Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojures-backtick.html>.
 
 
+## Installation
+
+Artifacts are hosted on Clojars: <https://clojars.org/backtick>
+
+
 ## Usage
 
 ```clojure
