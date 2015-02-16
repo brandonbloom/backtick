@@ -1,5 +1,5 @@
 (ns backtick
-  (:refer-clojure :exclude [eval resolve]))
+  (:refer-clojure :exclude [resolve]))
 
 (def ^:dynamic *resolve*)
 
