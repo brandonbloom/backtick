@@ -51,6 +51,7 @@
               fully/qualified
               .method
               .
+              non.existant
               inc
               backtick.test/inc
               quote])
@@ -62,6 +63,7 @@
              fully/qualified
              .method
              .
+             non.existant
              inc
              backtick.test/inc
              quote]))))

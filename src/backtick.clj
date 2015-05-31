@@ -73,11 +73,14 @@
   (symbol (var-namespace v) (var-name v)))
 
 (defn- ns-resolve-sym [sym]
-  (let [x (ns-resolve *ns* sym)]
-    (cond
-      (instance? java.lang.Class x) (class-symbol x)
-      (instance? clojure.lang.Var x) (var-symbol x)
-      :else nil)))
+  (try
+    (let [x (ns-resolve *ns* sym)]
+      (cond
+        (instance? java.lang.Class x) (class-symbol x)
+        (instance? clojure.lang.Var x) (var-symbol x)
+        :else nil))
+    (catch ClassNotFoundException _
+      sym)))
 
 (defn resolve-symbol [sym]
   (let [ns (namespace sym)
