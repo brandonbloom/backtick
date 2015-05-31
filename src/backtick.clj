@@ -83,7 +83,7 @@
   (let [ns (namespace sym)
         nm (name sym)]
     (if (nil? ns)
-      (if-let [[_ ctor-name] (re-find #"(.*)\.$" nm)]
+      (if-let [[_ ctor-name] (re-find #"(.+)\.$" nm)]
         (symbol nil (-> (symbol nil ctor-name)
                       resolve-symbol
                       name

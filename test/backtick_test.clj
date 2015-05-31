@@ -50,6 +50,7 @@
               unqualified
               fully/qualified
               .method
+              .
               inc
               backtick.test/inc
               quote])
@@ -60,7 +61,7 @@
              unqualified
              fully/qualified
              .method
+             .
              inc
              backtick.test/inc
              quote]))))
-
