@@ -5,6 +5,9 @@
 
 (def ^:dynamic ^:private *gensyms*)
 
+(defn error [msg form]
+  (throw (ex-info msg {:form form})))
+
 (defn- resolve [sym]
   (let [ns (namespace sym)
         n (name sym)]
@@ -22,25 +25,49 @@
 (defn unquote-splicing? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote-splicing)))
 
+(defn inert? [x]
+  (or (nil? x)
+      (keyword? x)
+      (number? x)
+      (string? x)
+      (instance? Boolean x)
+      (= () x)))
+
+(declare quote-fn*)
+
+(defn splice-items [coll]
+  (let [xs (if (map? coll) (apply concat coll) coll)
+        parts (for [x xs]
+                (if (unquote-splicing? x)
+                  (second x)
+                  [(quote-fn* x)]))
+        cat (doall `(concat ~@parts))]
+    (cond
+      (vector? coll) `(vec ~cat)
+      (map? coll) `(apply hash-map ~cat)
+      (set? coll) `(set ~cat)
+      (seq? coll) `(apply list ~cat)
+      :else (error "Unknown collection type" coll))))
+
+(defn quote-items [coll]
+  ((cond
+     (vector? coll) vec
+     (map? coll) #(into {} %)
+     (set? coll) set
+     (seq? coll) #(list* 'list (doall %))
+     :else (error "Unknown collection type" coll))
+   (map quote-fn* coll)))
+
 (defn- quote-fn* [form]
   (cond
+    (inert? form) form
     (symbol? form) `'~(resolve form)
     (unquote? form) (second form)
-    (unquote-splicing? form) (throw (Exception. "splice not in list"))
+    (unquote-splicing? form) (error "splice not in collection" form)
     (record? form) `'~form
-    (coll? form)
-      (let [xs (if (map? form) (apply concat form) form)
-            parts (for [x xs]
-                    (if (unquote-splicing? x)
-                      (second x)
-                      [(quote-fn* x)]))
-            cat (doall `(concat ~@parts))]
-        (cond
-          (vector? form) `(vec ~cat)
-          (map? form) `(apply hash-map ~cat)
-          (set? form) `(set ~cat)
-          (seq? form) `(apply list ~cat)
-          :else (throw (Exception. "Unknown collection type"))))
+    (coll? form) (if (some unquote-splicing? form)
+                   (splice-items form)
+                   (quote-items form))
     :else `'~form))
 
 (defn quote-fn [resolver form]
