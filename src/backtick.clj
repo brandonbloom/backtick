@@ -20,6 +20,9 @@
           gs))
       (*qualify* sym))))
 
+(defn- expand [unquote-expr]
+  (-> unquote-expr second *expand*))
+
 (defn unquote? [form]
   (and (seq? form) (= (first form) 'clojure.core/unquote)))
 
@@ -40,7 +43,7 @@
   (let [xs (if (map? coll) (apply concat coll) coll)
         parts (for [x xs]
                 (if (unquote-splicing? x)
-                  (second x)
+                  (expand x)
                   [(quote-fn* x)]))
         cat (doall `(concat ~@parts))]
     (cond
@@ -63,7 +66,7 @@
   (cond
     (inert? form)            form
     (symbol? form)           `'~(qualify form)
-    (unquote? form)          (second form)
+    (unquote? form)          (expand form)
     (unquote-splicing? form) (error "splice not in collection" form)
     (record? form)           `'~form
     (coll? form)             (if (some unquote-splicing? form)
@@ -86,10 +89,16 @@
   ([name qualifier expander]
     `(let [qualifier# ~qualifier
            expander#  ~expander]
-       (defn ~(symbol (str name "-fn")) [form#]
-         (quote-fn qualifier# expander# form#))
-       (defmacro ~name [form#]
-         (quote-fn qualifier# expander# form#)))))
+       (defn ~(symbol (str name "-fn"))
+         ([form#]
+          (quote-fn qualifier# expander# form#))
+         ([form# expander#]
+          (quote-fn qualifier# expander# form#)))
+       (defmacro ~name
+         ([form#]
+          (quote-fn qualifier# expander# form#))
+         ([form# expander#]
+          (quote-fn qualifier# expander# form#))))))
 
 (defquote template identity)
 
