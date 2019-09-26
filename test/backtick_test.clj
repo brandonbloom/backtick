@@ -1,6 +1,6 @@
 (ns backtick-test
   (:use clojure.test)
-  (:require [backtick :refer (template defquote quote-fn syntax-quote)]))
+  (:require [backtick :refer (template defquote syntax-quote quote-fn)]))
 
 (deftest template-test
 
