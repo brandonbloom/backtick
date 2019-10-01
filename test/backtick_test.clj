@@ -1,6 +1,7 @@
 (ns backtick-test
   (:use clojure.test)
-  (:require [backtick :refer (template defquote syntax-quote quote-fn)]))
+  (:require [backtick :refer [template defquote syntax-quote quote-fn]])
+  (:import clojure.lang.ExceptionInfo))
 
 (deftest template-test
 
@@ -20,19 +21,43 @@
       (is (not= a 'foo#))
       (is (= a c))
       (is (not= a b))
-      (is (= d 'bar)))))
+      (is (= d 'bar))))
+
+  (testing "Custom expander"
+    (is (= '[:X :Y :Z]       (template '{a :X b :Y c [:Z]} [~a ~b ~@c])))
+    (is (= '["ax" "bx" "cx"] (template #(str % \x)         [~a ~b ~c])))
+    (let [x 1
+          e (try (eval '(backtick/template #(str % x) [~a]))
+              (catch ExceptionInfo e
+                e))]
+      (is (instance? ExceptionInfo e))
+      (is (= (str "Error evaluating templating expander of 'template' "
+                  "(always evaluated at macro-expansion time)")
+             (.getMessage e))))))
 
 (defn add-bang [sym]
   (symbol (str sym "!")))
 
 (defquote wacky-quote add-bang)
 
+(def the-map
+  '{a 'ABBREVIATED})
+
+(defquote map-quote identity the-map)
+
 (deftest defquote-test
+
   (testing "Custom resolver"
     (is (= ''foo! (quote-fn add-bang 'foo)))
     (is (= ''foo! (wacky-quote-fn 'foo)))
     (is (= '(foo! :a [5 bar!])
-           (wacky-quote (foo :a [5 bar]))))))
+           (wacky-quote (foo :a [5 bar])))))
+
+  (testing "Custom expander"
+    (is (= ''ABBREVIATED  (quote-fn identity the-map '~a)))
+    (is (= ''ABBREVIATED (wacky-quote-fn the-map '~a)))
+    (is (= '(ABBREVIATED :a [5 bar!])
+           (map-quote (ABBREVIATED :a [5 bar!]))))))
 
 (defrecord R [x])
 
