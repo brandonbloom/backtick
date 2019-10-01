@@ -9,7 +9,7 @@ Clojure's backtick `` ` `` reader macro, called syntax-quote, complects the
 templating of Clojure forms with Clojure's namespaced symbol resolution.
 
 Backtick allows you to use the unquote `` ~ `` and unquote-splicing `` ~@ ``
-metacharacters for templating forms with or without a custom symbol resolver.
+metacharacters for templating forms with or without custom symbol qualifiers and expanders.
 
 Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojures-backtick.html>.
 
@@ -28,18 +28,24 @@ Artifacts are hosted on Clojars: <https://clojars.org/backtick>
 (let [x 5 v [:a :b]]
   (syntax-quote {:x ~x, s #{~@v "c" inc}}))
 
-;; Returns:
+;; Prints at the REPL:
 {:x 5, user/s #{"c" clojure.core/inc :a :b}}
 
 ;; Templating only, no symbol resolution
 (let [x 5 v [:a :b]]
   (template {:x ~x, s #{~@v "c" inc}}))
 
-;; Returns:
-{s #{"c" :a :b inc}, :x 5}
+;; Prints at the REPL:
+{:x 5, s #{"c" :a :b inc}}
+
+;; Templating with a custom expander
+(template '{a "ABC" z ["XYZ"]}  [~a ~@z])
+
+;; Prints at the REPL:
+["ABC" "XYZ"]
 ```
 
-Note that while `template` does not resolve symbols, it does support gensyms:
+Note that while `template` does not qualify symbols, it does support gensyms:
 
 ```clojure
 (template [x# x# y#])
@@ -48,15 +54,44 @@ Note that while `template` does not resolve symbols, it does support gensyms:
 [x__auto__990 x__auto__990 y__auto__991]
 ```
 
-You can create a templating macro with a custom resolver by using `defquote`:
+You can create a templating macro with a custom qualifier by using `defquote`:
 
 ```clojure
 (defquote shout-quote (comp symbol clojure.string/upper-case))
 
 (shout-quote {:foo bar})
 
-;; Returns:
+;; Prints at the REPL:
 {:foo BAR}
+```
+
+You can also define a templating macro with a custom expander, which is run only
+on expanded expressions (and conversely a qualifier only runs on unexpanded expressions).
+
+It can be used to let the expanded expressions refer to something else than the
+lexical scope, so as to fill the placeholders with the content of a map for
+instance.
+
+```clojure
+(defquote abbrev-quote identity '{b 'bar})
+
+(abbrev-quote {:foo ~b})
+
+;; Prints at the REPL:
+{:foo bar}
+```
+
+It is also possible to override the expander of a templating macro (by default,
+`identity`) by specifying it at the call site.
+
+```clojure
+(def abbreviations
+  '{b 'bar})
+
+(template abbreviations {:foo ~b})
+
+;; Prints at the REPL:
+{:foo bar}
 ```
 
 Corresponding functions are generated for every quoting macro:
@@ -65,6 +100,7 @@ Corresponding functions are generated for every quoting macro:
 (syntax-quote-fn 'foo) ;; => (quote user/foo)
 (template-fn 'foo)     ;; => (quote foo)
 (shout-quote-fn 'foo)  ;; => (quote FOO)
+(abbrev-quote-fn '~b)  ;; => (quote bar)
 ```
 
 

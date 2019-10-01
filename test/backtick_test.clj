@@ -28,7 +28,7 @@
     (is (= '["ax" "bx" "cx"] (template #(str % \x)         [~a ~b ~c])))
     (let [x 1
           e (try (eval '(backtick/template #(str % x) [~a]))
-              (catch ExceptionInfo e
+              (catch Exception e
                 e))]
       (is (instance? ExceptionInfo e))
       (is (= (str "Error evaluating templating expander of 'template' "
@@ -43,7 +43,7 @@
 (def the-map
   '{a 'ABBREVIATED})
 
-(defquote map-quote identity the-map)
+(defquote abbrev-quote identity the-map)
 
 (deftest defquote-test
 
@@ -57,7 +57,7 @@
     (is (= ''ABBREVIATED  (quote-fn identity the-map '~a)))
     (is (= ''ABBREVIATED (wacky-quote-fn the-map '~a)))
     (is (= '(ABBREVIATED :a [5 bar!])
-           (map-quote (ABBREVIATED :a [5 bar!]))))))
+           (abbrev-quote (ABBREVIATED :a [5 bar!]))))))
 
 (defrecord R [x])
 
