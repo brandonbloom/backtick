@@ -75,11 +75,11 @@
     :else                    `'~form))
 
 (defn quote-fn
-  ([qualifier expander]
-   (quote-fn qualifier identity expander))
+  ([qualifier form]
+   (quote-fn qualifier identity form))
   ([qualifier expander form]
     (binding [*qualify* qualifier
-              *expand* expander
+              *expand*  expander
               *gensyms* (atom {})]
       (quote-fn* form))))
 
@@ -87,18 +87,26 @@
   ([name qualifier]
    `(defquote ~name ~qualifier identity))
   ([name qualifier expander]
-    `(let [qualifier# ~qualifier
-           expander#  ~expander]
+   `(let [qualifier# ~qualifier
+          expander#  ~expander
+          compile-time-eval#
+          #(try (eval %)
+             (catch Exception e#
+               (-> (format (str "Error evaluating templating expander of '%s' "
+                                "(always evaluated at macro-expansion time)")
+                           '~name)
+                   (ex-info  {:form '~&form} e#)
+                   throw)))]
        (defn ~(symbol (str name "-fn"))
          ([form#]
           (quote-fn qualifier# expander# form#))
-         ([form# expander#]
+         ([expander# form#]
           (quote-fn qualifier# expander# form#)))
        (defmacro ~name
          ([form#]
-          (quote-fn qualifier# expander# form#))
-         ([form# expander#]
-          (quote-fn qualifier# expander# form#))))))
+          (quote-fn qualifier# (compile-time-eval# '~expander) form#))
+         ([expander# form#]
+          (quote-fn qualifier# (compile-time-eval# expander#) form#))))))
 
 (defquote template identity)
 
