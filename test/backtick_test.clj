@@ -57,7 +57,7 @@
     (is (= ''ABBREVIATED  (quote-fn identity the-map '~a)))
     (is (= ''ABBREVIATED (wacky-quote-fn the-map '~a)))
     (is (= '(ABBREVIATED :a [5 bar!])
-           (abbrev-quote (ABBREVIATED :a [5 bar!]))))))
+           (abbrev-quote (~a :a [5 bar!]))))))
 
 (defrecord R [x])
 
