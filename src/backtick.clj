@@ -5,6 +5,9 @@
 
 (def ^:dynamic ^:private *gensyms*)
 
+(defn backtick-error [msg form]
+  (throw (ex-info msg {:form form})))
+
 (defn- resolve [sym]
   (let [ns (namespace sym)
         n (name sym)]
@@ -26,7 +29,7 @@
   (cond
     (symbol? form) `'~(resolve form)
     (unquote? form) (second form)
-    (unquote-splicing? form) (throw (Exception. "splice not in list"))
+    (unquote-splicing? form) (backtick-error "splice not in list" form)
     (record? form) `'~form
     (coll? form)
       (let [xs (if (map? form) (apply concat form) form)
@@ -40,7 +43,7 @@
           (map? form) `(apply hash-map ~cat)
           (set? form) `(set ~cat)
           (seq? form) `(apply list ~cat)
-          :else (throw (Exception. "Unknown collection type"))))
+          :else (backtick-error "Unknown collection type" form))))
     :else `'~form))
 
 (defn quote-fn [resolver form]
@@ -76,8 +79,8 @@
   (try
     (let [x (ns-resolve *ns* sym)]
       (cond
-        (instance? java.lang.Class x) (class-symbol x)
-        (instance? clojure.lang.Var x) (var-symbol x)
+        (class? x) (class-symbol x)
+        (var? x) (var-symbol x)
         :else nil))
     (catch ClassNotFoundException _
       sym)))
