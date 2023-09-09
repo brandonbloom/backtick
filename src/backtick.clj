@@ -78,6 +78,8 @@
       (cond
         (instance? java.lang.Class x) (class-symbol x)
         (instance? clojure.lang.Var x) (var-symbol x)
+        ;; Workaround for change in 1.10
+        (re-find #"\." (name sym)) sym
         :else nil))
     (catch ClassNotFoundException _
       sym)))
