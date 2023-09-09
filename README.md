@@ -11,7 +11,7 @@ templating of Clojure forms with Clojure's namespaced symbol resolution.
 Backtick allows you to use the unquote `` ~ `` and unquote-splicing `` ~@ ``
 metacharacters for templating forms with or without a custom symbol resolver.
 
-Lots more background at <http://blog.brandonbloom.name/2012/11/templating-clojures-backtick.html>.
+Lots more background at <https://www.brandonbloom.name/blog/2012/11/23/templating-clojures-backtick/>.
 
 
 ## Installation

@@ -81,6 +81,8 @@
       (cond
         (class? x) (class-symbol x)
         (var? x) (var-symbol x)
+        ;; Workaround for change in 1.10
+        (re-find #"\." (name sym)) sym
         :else nil))
     (catch ClassNotFoundException _
       sym)))
