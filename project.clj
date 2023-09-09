@@ -1,4 +1,4 @@
-(defproject backtick "0.3.4"
+(defproject backtick "0.3.5"
   :description "Provides the syntax-quote reader macro as a normal macro"
   :url "https://github.com/brandonbloom/backtick"
   :license {:name "Eclipse Public License"
