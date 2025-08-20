@@ -7,12 +7,12 @@
   (testing "Primitives, collections, unquote, and splice; symbols qualified"
     (let [n 5 v [:a :b]]
       (is (=           `(5 nil () true a/b ~n [p/q ~@v r/s] {:x #{"s"}})
-              (template (5 nil () true a/b ~n [p/q ~@v r/s] {:x #{"s"}}))))))
+                       (template (5 nil () true a/b ~n [p/q ~@v r/s] {:x #{"s"}}))))))
 
   (testing "Multiple splices"
     (let [v [:a :b] a 5]
       (is (=           `(~a ~@v ~@v ~a)
-             (template  (~a ~@v ~@v ~a))))))
+                       (template  (~a ~@v ~@v ~a))))))
 
   (testing "Automatic gensyms"
     (let [[a b c d] (template [foo# bar# foo# bar])]
@@ -43,18 +43,18 @@
 (deftest syntax-quote-test
   (testing "Constructors, classes, methods, vars, and specials"
     (is (= (syntax-quote
-             [Class
-              Class.
-              java.lang.Class
-              java.lang.Class.
-              unqualified
-              fully/qualified
-              .method
-              .
-              non.existant
-              inc
-              backtick.test/inc
-              quote])
+            [Class
+             Class.
+             java.lang.Class
+             java.lang.Class.
+             unqualified
+             fully/qualified
+             .method
+             .
+             non.existant
+             inc
+             backtick.test/inc
+             quote])
            `[Class
              Class.
              java.lang.Class
@@ -67,3 +67,7 @@
              inc
              backtick.test/inc
              quote]))))
+
+(deftest preserves-collection-metadata
+  (is (= '{:tag x/y}
+         (meta (template ^x/y [1 2 3])))))
