@@ -29,18 +29,21 @@
     (unquote-splicing? form) (throw (Exception. "splice not in list"))
     (record? form) `'~form
     (coll? form)
-      (let [xs (if (map? form) (apply concat form) form)
-            parts (for [x xs]
-                    (if (unquote-splicing? x)
-                      (second x)
-                      [(quote-fn* x)]))
-            cat (doall `(concat ~@parts))]
-        (cond
-          (vector? form) `(vec ~cat)
-          (map? form) `(apply hash-map ~cat)
-          (set? form) `(set ~cat)
-          (seq? form) `(apply list ~cat)
-          :else (throw (Exception. "Unknown collection type"))))
+    (let [xs (if (map? form) (apply concat form) form)
+          parts (for [x xs]
+                  (if (unquote-splicing? x)
+                    (second x)
+                    [(quote-fn* x)]))
+          cat (doall `(concat ~@parts))
+          coll (cond
+                 (vector? form) `(vec ~cat)
+                 (map? form) `(apply hash-map ~cat)
+                 (set? form) `(set ~cat)
+                 (seq? form) `(apply list ~cat)
+                 :else (throw (Exception. "Unknown collection type")))]
+      (if-some [m (meta form)]
+        `(with-meta ~coll (quote ~m))
+        coll))
     :else `'~form))
 
 (defn quote-fn [resolver form]
@@ -90,9 +93,9 @@
     (if (nil? ns)
       (if-let [[_ ctor-name] (re-find #"(.+)\.$" nm)]
         (symbol nil (-> (symbol nil ctor-name)
-                      resolve-symbol
-                      name
-                      (str ".")))
+                        resolve-symbol
+                        name
+                        (str ".")))
         (if (or (special-symbol? sym)
                 (re-find #"^\." nm)) ; method name
           sym

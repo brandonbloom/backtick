@@ -67,6 +67,8 @@ Corresponding functions are generated for every quoting macro:
 (shout-quote-fn 'foo)  ;; => (quote FOO)
 ```
 
+NOTE: Metadata is preserved.
+
 
 ## License
 
