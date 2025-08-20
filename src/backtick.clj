@@ -35,13 +35,15 @@
                     (second x)
                     [(quote-fn* x)]))
           cat (doall `(concat ~@parts))
-          m (meta form)]
-      (cond
-        (vector? form) `(with-meta (vec ~cat) (quote ~m))
-        (map? form) `(with-meta (apply hash-map ~cat) (quote ~m))
-        (set? form) `(with-meta (set ~cat) (quote ~m))
-        (seq? form) `(with-meta (apply list ~cat) (quote ~m))
-        :else (throw (Exception. "Unknown collection type"))))
+          coll (cond
+                 (vector? form) `(vec ~cat)
+                 (map? form) `(apply hash-map ~cat)
+                 (set? form) `(set ~cat)
+                 (seq? form) `(apply list ~cat)
+                 :else (throw (Exception. "Unknown collection type")))]
+      (if-some [m (meta form)]
+        `(with-meta ~coll (quote ~m))
+        coll))
     :else `'~form))
 
 (defn quote-fn [resolver form]
