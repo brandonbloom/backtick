@@ -1,0 +1,8 @@
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}}
+
+ :aliases
+ {:repl {:extra-paths ["test"]}
+
+  :test {:extra-paths ["test"]
+         :main-opts ["-e" "(require,'backtick-test)(clojure.test/run-tests,'backtick-test)"]}}}
